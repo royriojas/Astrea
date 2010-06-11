@@ -1,0 +1,44 @@
+Unit tests 
+
+Directory structure:
+--------------------
+
+- thirdparty
+   - qunit: assertion framework
+   - qmock: mocking framework
+   - jsUnit: Timeout mock
+- plugins
+   - coverage-1.2.1.jar: code coverage plugin
+- jsTestDriver-1.2.1.jar: test driver
+- jsTestDriver.conf: configuration
+
+To execute tests:
+-----------------
+
+1. Start js-test-driver server on cmd line:
+    java -jar JsTestDriver-1.2.1.jar --port 9876
+
+2. Manually capture the browsers:
+    - Open the browser you want.
+    - Go to http://localhost:9876
+    - Click on 'Capture this browser'
+
+3. Either
+
+   Run the tests manually from the cmd line:
+    java -jar JsTestDriver-1.2.1.jar --config jsTestDriver.conf --verbose --tests all
+   
+To generate code coverage report:
+---------------------------------
+
+1. Uncomment the entire 'plugin' section in jsTestDriver.conf
+
+2. Restart js-test-driver server and re-capture kakai-browser
+
+3. Run the tests manually from the cmd line, this time providing an output directory:
+    java -jar JsTestDriver-1.2.1.jar --config jsTestDriver.conf --verbose --tests all --testOutput {output_dir}
+
+4. Generate the report:
+    - Download and install lcov
+    - Run genhtml {output_dir}\jsTestDriver.conf-coverage.dat
+    - Open {output_dir}\index.html
