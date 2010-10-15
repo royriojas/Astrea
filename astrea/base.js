@@ -14,16 +14,15 @@
  *  }
  * }
  */
-jQuery.Namespace = function(ns) {
-  var nsParts = ns.split(".");
-  var root = window;
-  for (var i = 0; i < nsParts.length; i++) {
-    if (typeof root[nsParts[i]] == "undefined") {
-      root[nsParts[i]] = {};
+jQuery.ns = function(ns) {
+  var nOut = window;
+  ns.split(".").each(function (i, v) {
+    if (typeof nOut[v] == "undefined") {
+      nOut[v]] = {};
     }
-    root = root[nsParts[i]];
-  }
-  return root;
+    nOut = nOut[v];
+  });  
+  return nOut;
 };
 /**
  * replaces the {n} tokens found in the string with the arguments in the n index
@@ -38,7 +37,7 @@ jQuery.stringFormat = function(s) {
   return s;
 }
 
-jQuery.Namespace('Astrea.Util');
+jQuery.ns('Astrea.Util');
 
 /**
  * find the value in an object and apply the modifiers included in the token, default and format values are supported now

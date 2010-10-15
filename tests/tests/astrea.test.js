@@ -1,19 +1,19 @@
 module('Astrea');
 
-test('object created using $.Namespace exists', function() {
+test('object created using $.ns exists', function() {
   expect(1);
-  var namespaceNotNull;
-  $.Namespace('my.custom.ns');
+  var nsNotNull;
+  $.ns('my.custom.ns');
   try {
-    namespaceNotNull = my.custom.ns !== null;
+    nsNotNull = my.custom.ns !== null;
   }
   catch(ex) {
-    namespaceNotNull = false
+    nsNotNull = false
   }  
-  ok(namespaceNotNull, 'Namespace is not well created')
+  ok(nsNotNull, 'ns is not well created')
 });
 
-test('namespace object does not destroy objects that already exist', function () {
+test('ns object does not destroy objects that already exist', function () {
   
   var sameObject, old;
   window.my = {
@@ -24,7 +24,7 @@ test('namespace object does not destroy objects that already exist', function ()
     }
   }
   old = window.my.custom.ns; 
-  $.Namespace('my.custom');
+  $.ns('my.custom');
   expect(1);
   try {
     sameObject = my.custom.ns === old;

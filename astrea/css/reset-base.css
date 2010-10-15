@@ -1,0 +1,206 @@
+/*
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.com/yui/license.html
+version: 3.2.0pr2
+build: 2643
+*/
+/*
+  TODO will need to remove settings on HTML since we can't namespace it.
+  TODO with the prefix, should I group by selector or property for weight savings?
+*/
+html{
+  color:#000;
+  background:#FFF;
+}
+/*
+  TODO remove settings on BODY since we can't namespace it.
+*/
+/*
+  TODO test putting a class on HEAD.
+    - Fails on FF. 
+*/
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+code,
+form,
+fieldset,
+legend,
+input,
+textarea,
+p,
+blockquote,
+th,
+td {
+  margin:0;
+  padding:0;
+}
+table {
+  border-collapse:collapse;
+  border-spacing:0;
+}
+fieldset,
+img {
+  border:0;
+}
+/*
+  TODO think about hanlding inheritence differently, maybe letting IE6 fail a bit...
+*/
+address,
+caption,
+cite,
+code,
+dfn,
+em,
+strong,
+th,
+var {
+  font-style:normal;
+  font-weight:normal;
+}
+/*
+  TODO Figure out where this list-style rule is best set. Hedger has a request to investigate.
+*/
+li {
+  list-style:none;
+}
+
+caption,
+th {
+  text-align:left;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size:100%;
+  font-weight:normal;
+}
+q:before,
+q:after {
+  content:'';
+}
+abbr,
+acronym {
+  border:0;
+  font-variant:normal;
+}
+/* to preserve line-height and selector appearance */
+sup {
+  vertical-align:text-top;
+}
+sub {
+  vertical-align:text-bottom;
+}
+input,
+textarea,
+select {
+  font-family:inherit;
+  font-size:inherit;
+  font-weight:inherit;
+}
+/*to enable resizing for IE*/
+input,
+textarea,
+select {
+  *font-size:100%;
+}
+/*because legend doesn't inherit in IE */
+legend {
+  color:#000;
+}
+/*
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.com/yui/license.html
+version: 3.2.0pr2
+build: 2643
+*/
+/* base.css, part of YUI's CSS Foundation */
+.css-base h1 {
+  /*18px via YUI Fonts CSS foundation*/
+  font-size:138.5%;  
+}
+.css-base h2 {
+  /*16px via YUI Fonts CSS foundation*/
+  font-size:123.1%; 
+}
+.css-base h3 {
+  /*14px via YUI Fonts CSS foundation*/
+  font-size:108%;  
+}
+.css-base h1,.css-base h2,.css-base h3 {
+  /* top & bottom margin based on font size */
+  margin:1em 0;
+}
+.css-base h1,.css-base h2,.css-base h3,.css-base h4,.css-base h5,.css-base h6,.css-base strong {
+  /*bringing boldness back to headers and the strong element*/
+  font-weight:bold; 
+}
+.css-base abbr,.css-base acronym {
+  /*indicating to users that more info is available */
+  border-bottom:1px dotted #000;
+  cursor:help;
+} 
+.css-base em {
+  /*bringing italics back to the em element*/
+  font-style:italic;
+}
+.css-base blockquote,.css-base ul,.css-base ol,.css-base dl {
+  /*giving blockquotes and lists room to breath*/
+  margin:1em;
+}
+.css-base ol,.css-base ul,.css-base dl {
+  /*bringing lists on to the page with breathing room */
+  margin-left:2em;
+}
+.css-base ol li {
+  /*giving OL's LIs generated numbers*/
+  list-style: decimal outside;  
+}
+.css-base ul li {
+  /*giving UL's LIs generated disc markers*/
+  list-style: disc outside;
+}
+.css-base dl dd {
+  /*providing spacing for definition terms*/
+  margin-left:1em;
+}
+.css-base th,.css-base td {
+  /*borders and padding to make the table readable*/
+  border:1px solid #000;
+  padding:.5em;
+}
+.css-base th {
+  /*distinguishing table headers from data cells*/
+  font-weight:bold;
+  text-align:center;
+}
+.css-base caption {
+  /*coordinated margin to match cell's padding*/
+  margin-bottom:.5em;
+  /*centered so it doesn't blend in to other content*/
+  text-align:center;
+}
+.css-base p,.css-base fieldset,.css-base table,.css-base pre {
+  /*so things don't run into each other*/
+  margin-bottom:1em;
+}
+/* setting a consistent width, 160px; 
+   control of type=file still not possible */
+.css-base input[type=text],.css-base input[type=password],.css-base textarea{width:12.25em;*width:11.9em;}
