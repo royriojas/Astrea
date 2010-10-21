@@ -244,7 +244,8 @@
      */
     validateAsync: function(selector, onValidate) {
       var me = this, opts = this.options;
-      var validators = this.element.find(selector).filter(opts.validator);
+      selector = selector || opts.validators;
+      var validators = this.element.find(selector).filter(opts.validators);
       iterate(validators, function(validator, cb) {
         me._validateValidator($(validator), cb);
       }, function(isValid) {
