@@ -9,22 +9,48 @@
     <!-- validator javascript files -->
     <link type="text/css" href="../../astrea/validator/validator.css" rel="stylesheet">
     <script src="../../astrea/validator/validator.js"></script>
-    
+    <style type="text/css">
+      .message {
+        padding: 20px;
+        color: white;
+        background: green;
+        text-align: center;
+        display: none;
+      }
+      
+      .note {
+        background: #eee;
+        padding: 10px;
+        margin-top: 10px;
+      }
+      
+      .note p {
+        margin-bottom: 10px;
+      }
+    </style>
   </head>
   <body>
     <script type="text/javascript">
+      function notNullOrEmpty(val) {
+        return val != null && val != "";
+      }
+      
       function checkUserName(field, val, validator, callback) {
         //simulate an ajax call
-        setTimeout(function () {
+        setTimeout(function() {
+          var fname = $('#NameField').val();
+          var lname = $('#LastField').val();
           //only allow user names that not contains the original first name or last name on them.
-          var isValid = val.indexOf($('#NameField').val()) < 0 && val.indexOf($('#LastField').val()) < 0;  
+          var isValid = notNullOrEmpty(val) && notNullOrEmpty(fname) && notNullOrEmpty(lname) && val.indexOf(fname) < 0 && val.indexOf(lname) < 0;
           callback(isValid);
         }, 200);
       }
-      $(function () {
+      
+      $(function() {
         $('.forms').validator();
-        $('.forms .button.save').bind('validationsuccess', function () {
-          $('.message').html('Yay! the data in the form is valid... doing some processing now!');
+        $('.forms .button.save').bind('validationsuccess', function() {
+          $('.message').html('Yay! the data in the form is valid... doing some processing now!').show();
+          
         });
       })
     </script>
@@ -32,7 +58,7 @@
       <form action="">
         <fieldset>
           <div class="legend">
-            Some Text goes here
+            Yet Another Validator Widget
           </div>
           <ul class="fields oneline">
             <li>
@@ -41,7 +67,7 @@
                   First Name : 
                 </label>
                 <input id="NameField" type="text" />
-                <div class="validator required" data-field="#NameField">
+                <div class="validator sync  required" data-field="#NameField">
                   <p>
                     Please provide your first name
                   </p>
@@ -57,7 +83,7 @@
                   Last Name : 
                 </label>
                 <input id="LastField" type="text" />
-                <div class="validator required" data-field="#LastField">
+                <div class="validator sync  required" data-field="#LastField">
                   <p>
                     Please provide your last name
                   </p>
@@ -83,7 +109,7 @@
                   Email : 
                 </label>
                 <input id="EmailField" type="text" />
-                <div class="validator required regex" data-field="#EmailField" data-regex="([\w-\.]+)@((?:[\w]+\.)+)([a-zA-Z]{2,4})" data-modifiers="">
+                <div class="validator sync  required regex" data-field="#EmailField" data-regex="([\w-\.]+)@((?:[\w]+\.)+)([a-zA-Z]{2,4})" data-modifiers="">
                   <p>
                     Please enter a valida email
                   </p>
@@ -101,7 +127,7 @@
                   <option value="3">jQuery UI</option>
                   <option value="4">Mootools</option>
                 </select>
-                <div class="validator compare" data-field="#sprint" data-comparison-type="notEqual" data-comparison-value="-1" >
+                <div class="validator sync  compare" data-field="#sprint" data-comparison-type="notEqual" data-comparison-value="-1">
                   <p>
                     Please select a project
                   </p>
@@ -111,10 +137,10 @@
             <li>
               <div>
                 <label>
-                  Please give a puntuation to this widget (from 1 to 10) 
+                  Score (1-10) 
                 </label>
                 <input type="text" id="Puntuation" />
-                <div class="validator required range" data-field="#Puntuation" data-min-value="1" data-max-value="10">
+                <div class="validator sync  required range" data-field="#Puntuation" data-min-value="1" data-max-value="10">
                   <p>
                     Please provide a puntuation between 1 and 10 only!
                   </p>
@@ -123,18 +149,30 @@
             </li>
             <li>
               <div class="validation-summary">
-                <p>This message will only been show when the validation fails</p>
+                <p>
+                  This message will only been show when the validation fails
+                </p>
               </div>
+              <p class="message">
+              </p>
             </li>
             <li>
               <div class="buttons">
                 <a href="#" class="validation-trigger button save" data-validation-method="async"><span>Validate the form!</span></a>
+                <a href="#" class="validation-trigger button save" data-validator-group=".sync" data-validation-method="sync"><span>Validate sync!</span></a>
                 <a href="#" class="validation-clear button clear"><span>Clear the validators!</span></a>
+              </div>
+              <div class="note">
+                <p>
+                  Validate the form using the sync method will fail for the case of the current custom validator. Because it involves ajax validation. Which is asynchronous 
+                </p>
+                <p>
+                  So for this particular case we mark all the validators that can be validated in sync with the sync class, and set the data-validator-group property of the the button to only validate those fields 
+                </p>
               </div>
             </li>
           </ul>
         </fieldset>
-        <p class="message"></p>
       </form>
     </div>
   </body>

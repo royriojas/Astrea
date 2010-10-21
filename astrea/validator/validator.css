@@ -1,2 +1,3 @@
 .validator { display:none; color: #9F0909;   }
 .validation-summary { display:none; color :#9F0909; }
+.validation-trigger.failed { border: 1px solid #9F0909; box-shadow: 0 0 5px 5px #9f6666; -moz-box-shadow: 0 0 5px 5px #9f6666;-webkit-box-shadow: 0 0 5px 5px #9f6666;  } 

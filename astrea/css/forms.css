@@ -1,7 +1,7 @@
-.forms fieldset { border : 1px solid #efefef; }
-.forms fieldset .legend { display:block; background:#eee; color:#000; font-weight:bold; font-size:16px; padding:10px; }
+.forms fieldset { border : 1px solid #ddd; }
+.forms fieldset .legend { display:block; background:#bbb; color:#000; font-weight:bold; font-size:16px; padding:10px; }
 .forms fieldset ul.fields { padding:10px; }
-.forms fieldset ul.fields li { min-height:40px; }
+.forms fieldset ul.fields li { min-height:40px; padding-top:8px; padding-bottom:5px; padding-left:5px; border-top: 1px dashed #ddd; }
 .forms fieldset ul.fields li label { display:inline-block; width:150px; }
 .forms fieldset ul.fields li input { display:inline-block; width: 250px; }
 .forms fieldset ul.fields li input[type=text] { }
@@ -14,3 +14,11 @@
 .forms fieldset ul.fields li .validator.failed { margin-left:155px; margin-top:5px; margin-bottom:6px; display:inline-block; }
 .forms fieldset ul.fields li .validator .description { color: #333; font-size:10px; }
 .forms fieldset ul.fields li input.failed { border:1px solid #9F0909; }
+
+.forms fieldset ul.fields li .buttons a.button { display:inline-block; height:30px; line-height:30px; text-align:center; padding:0 10px; background: #eee; border:1px solid #999; text-decoration:none; color: #666; margin-right:10px; outline: 0; }
+.forms fieldset ul.fields li .buttons a.button:hover { background:#ddd; }
+
+.forms .validation-summary { border:1px dashed red;color:#9F0909;display:none;margin-bottom:16px;margin-top:10px;padding:13px 20px;text-align:center;}
+
+.forms fieldset ul.fields li:nth-of-type(2n+1) { background:#eeefef; }
+.forms { width: 500px;}

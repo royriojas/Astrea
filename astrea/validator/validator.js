@@ -32,11 +32,12 @@
     //closure fuction to iterate over the items async
     var process = function(lastValue) {
       //var currentItem
-      var item = copied.shift();
+      
       if (copied.length == 0) {
         cb && cb(lastValue);
         return;
       }
+      var item = copied.shift();
       fn(item, function(val) {
         process(val && lastValue);
       });
@@ -55,8 +56,8 @@
       me.refresh();
       
     },
-    _validateUnique: function(validator, val) {
-      return val && val != '';
+    _validateNotNullOrEmpty: function(validator, val) {
+      return (val != null) && (val != '');
     },
     _validateCompare: function(validator, val) {
       var compareValue = validator.attr('data-comparison-value'), valid = false;
@@ -99,9 +100,21 @@
       modifiers = (!modifiers || modifiers == '') ? null : modifiers;
       if (!exp || exp == '') 
         return false;
-      
-      var rx = new RegExp(exp, modifiers);
-      return rx.test(val);
+      try {
+        var rx = null; 
+        if (this._validateNotNullOrEmpty(modifiers)) {
+          rx = new RegExp(exp, modifiers);
+        }
+        else {
+          rx = new RegExp(exp);
+        }
+        
+        return rx != null && rx.test(val);
+      } 
+      catch (e) {
+        log(e.message);
+      }
+      return false;
     },
     
     _validateRangeValidator: function(validator, val) {
@@ -160,7 +173,7 @@
       if ($field.is(':visible')) {
         valid = true;
         if (validator.is('.required')) {
-          valid = this._validateUnique(validator, val);
+          valid = this._validateNotNullOrEmpty(validator, val);
         }
         if (validator.is('.compare')) {
           valid = valid && this._validateCompare(validator, val);
@@ -233,7 +246,7 @@
       if (opts.summary) {
         var summary = ele.find(opts.summary);
         summary.toggleClass(opts.failureClass, !isValid);
-        opts.showHide && ((!isValid) ? summary.show() : summary.hide());
+        opts.hideShow && ((!isValid) ? summary.show() : summary.hide());
       }
     },
     
@@ -323,7 +336,7 @@
       triggers.removeClass(opts.failureClass);
       if (opts.summary) {
         var summary = ele.find(opts.summary).removeClass(opts.failureClass);
-        opts.showHide && summary.hide();
+        opts.hideShow && summary.hide();
       }
     },
     
