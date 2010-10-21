@@ -11,9 +11,11 @@
   function log (msg) {
     window.console && window.console.log && window.console.log(msg);
   }
+  
   function val(input) {
     return $.trim(input.val());
   }
+  
   function validate(ele, callback, lastResult) {
     var jEle = $(ele);
     var input = jEle.attr('data-field');
@@ -84,7 +86,6 @@
         isValid = numValue != null && (numValue >= parseFloat(minVal)) && (numValue <= parseFloat(maxVal));
       }
       
-      
       // Custom Validator
       if (jEle.is('.Custom')) {
         var func = jEle.attr('data-custom-function');
@@ -99,26 +100,23 @@
             else {
               validate(ele.next, callback, lastResult && result);
             }
-            
           });
         }
         return;
       }
-    }
-    
-    
-  evaluateVisibility(jEle, isValid, input);
-    if (!callback) 
-      return;
-    if (!ele.next) {
-      callback(isValid && lastResult);
-    }
-    else {
-      validate(ele.next, callback, lastResult && isValid);
+      evaluateVisibility(jEle, isValid, input);
+      if (!callback) 
+        return;
+      if (!ele.next) {
+        callback(isValid && lastResult);
+      }
+      else {
+        validate(ele.next, callback, lastResult && isValid);
+      }
     }
   }
   
-   function evaluateVisibility(jEle, result, input) {
+  function evaluateVisibility(jEle, result, input) {
     if (!result) {
       jEle.fadeIn('fast');
       input.addClass('failed');
@@ -158,7 +156,7 @@
     var group = me.attr('data-validation-group');
     var validators = $('.validator' + group);
     validators.each(function() {
-      var validator = this;
+      var validator = $(this);
       var field = $(validator.attr('data-field'));
       var event = validator.attr('data-event');
       if (event) {

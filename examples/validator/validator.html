@@ -2,26 +2,78 @@
 <html>
   <head>
     <!-- jQuery --><script src="../../lib/jquery/jquery.js"></script>
-    <!-- jQuery UI --><script src="../../lib/jqueryui/jquery-ui-1.8.5.custom.min.js"></script>
-    <link type="text/css" href="../../lib/jqueryui/css/ui-lightness/jquery-ui-1.8.5.custom.css">
+    <!-- jQuery UI --><script src="../../lib/jqueryui/jquery-ui.js"></script>
+    <link type="text/css" href="../../lib/jqueryui/css/ui-lightness/jquery-ui-1.8.5.custom.css" rel="stylesheet">
+    <link type="text/css" href="../../astrea/css/reset-base.css" rel="stylesheet">
+    <link type="text/css" href="../../astrea/css/forms.css" rel="stylesheet">
     <!-- validator javascript files -->
-    <link type="text/css" href="../../astrea/validator/validator.css">
-    <script src="../../astrea/validator/validator.js"></script>
+    <link type="text/css" href="../../astrea/validator/validator.css" rel="stylesheet">
+    <script src="../../astrea/validator/validation.js"></script>
   </head>
   <body>
+    <script type="text/javascript">
+      function checkUserName(field, val, validator, callback) {
+        //simulate an ajax call
+        setTimeout(function () {
+          //only allow user names that not contains the original first name or last name on them.
+          var isValid = val.indexOf($('#NameField').val()) < 0 && val.indexOf($('#LastField').val()) < 0;  
+          callback(isValid);
+        }, 200);
+      }
+      $(function () {
+        $('.forms').validator();
+        $('.forms .button.save').bind('validationsuccess', function () {
+          $('.message').html('Yay! the data in the form is valid... doing some processing now!');
+        });
+      })
+    </script>
     <div class="forms">
       <form action="">
         <fieldset>
-          <legend>
+          <div class="legend">
             Some Text goes here
-          </legend>
+          </div>
           <ul class="fields oneline">
             <li>
               <div>
                 <label>
-                  Name : 
+                  First Name : 
                 </label>
-                <input type="text" />
+                <input id="NameField" type="text" />
+                <div class="validator required" data-field="#NameField">
+                  <p>
+                    Please provide your first name
+                  </p>
+                  <p class="description">
+                    This is how a brief description will be shown.
+                  </p>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div>
+                <label>
+                  Last Name : 
+                </label>
+                <input id="LastField" type="text" />
+                <div class="validator required" data-field="#LastField">
+                  <p>
+                    Please provide your last name
+                  </p>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div>
+                <label>
+                  User Name : 
+                </label>
+                <input id="UserNameField" type="text" />
+                <div class="validator custom" data-field="#UserNameField" data-custom-function="checkUserName">
+                  <p>
+                    The user name can't contains your first or last names
+                  </p>
+                </div>
               </div>
             </li>
             <li>
@@ -29,19 +81,59 @@
                 <label>
                   Email : 
                 </label>
-                <input type="text" />
+                <input id="EmailField" type="text" />
+                <div class="validator required regex" data-field="#EmailField" data-regex="([\w-\.]+)@((?:[\w]+\.)+)([a-zA-Z]{2,4})" data-modifiers="">
+                  <p>
+                    Please enter a valida email
+                  </p>
+                </div>
               </div>
             </li>
             <li>
               <div>
                 <label>
-                  Name : 
+                  Select Project: 
                 </label>
-                <input type="text" />
+                <select id="sprint">
+                  <option value="-1">None</option>
+                  <option value="2">jQuery</option>
+                  <option value="3">jQuery UI</option>
+                  <option value="4">Mootools</option>
+                </select>
+                <div class="validator compare" data-field="#sprint" data-comparison-type="notEqual" data-comparison-value="-1" >
+                  <p>
+                    Please select a project
+                  </p>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div>
+                <label>
+                  Please give a puntuation to this widget (from 1 to 10) 
+                </label>
+                <input type="text" id="Puntuation" />
+                <div class="validator required range" data-field="#Puntuation" data-min-value="1" data-max-value="10">
+                  <p>
+                    Please provide a puntuation between 1 and 10 only!
+                  </p>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="validation-summary">
+                <p>This message will only been show when the validation fails</p>
+              </div>
+            </li>
+            <li>
+              <div class="buttons">
+                <a href="#" class="validation-trigger button save"><span>Validate the form!</span></a>
+                <a href="#" class="validation-clear button clear"><span>Clear the validators!</span></a>
               </div>
             </li>
           </ul>
         </fieldset>
+        <p class="message"></p>
       </form>
     </div>
   </body>
