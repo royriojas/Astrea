@@ -41,7 +41,7 @@
         fn(item, function(val) {
           process(val && lastValue);
         });
-      },50);
+      },20);
     };
     process(true);
   }
@@ -158,13 +158,22 @@
         this.options.triggerEvents && $field.trigger('validationSuccess', [validator]);
       }
     },
+    
+    _getVal : function (field) {
+      var f = field; 
+      if (field.is(':radio') || field.is(':checkbox')) {
+        f= f.filter(':checked');
+      }
+      return $.trim(f.val()); 
+    },
+    
     _validateValidator: function(validator, notifyCallback) {
       if (!validator || validator.length == 0) 
         return;
       var valid = true;
       var field = validator.attr('data-field');
       var $field = $(field);
-      var val = $.trim($field.val());
+      var val = this._getVal($field);
       var me = this;
       var onValidate = function(v, iv, f) {
         me._evaluateVisibility(v, iv, f);

@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Async Renderer </title>
+    <!-- jQuery --><script src="../../lib/jquery/jquery.js"></script>
+    <!-- jQuery UI --><script src="../../lib/jqueryui/jquery-ui.js"></script>
+    <link type="text/css" href="../../lib/jqueryui/css/ui-lightness/jquery-ui-1.8.5.custom.css" rel="stylesheet">
+    <link type="text/css" href="../../astrea/css/reset-base.css" rel="stylesheet">
+    <link type="text/css" href="../../astrea/css/forms.css" rel="stylesheet">
+    <script src="../../astrea/profile/profile.js"></script>
+  </head>
+  <body>
+    <script>
+      
+      
+      var template = "<li><div><label>{NAME}</label><input type='text' value='{INITIAL_VALUE}' /></div></li>";
+      var target = $('ul.fields');
+      var MAX_NUM_ITEMS = 1000;
+      var items; 
+      
+      function createItems() {
+        var arr = [];
+        for (var i = 0; i < MAX_NUM_ITEMS; i++) {
+          arr.push({ name : 'Item ' + i, initialValue : i });
+        }
+        return arr;
+      }
+      
+      
+      function renderItems() {
+        for (var i = 0; i < 1000; i++) {
+          target.append(template.replace('{NAME}', 'item ' + i).replace('{INITIAL_VALUE}', 'value initial for ' + i));
+        }
+      }
+      
+      function renderItems2() {
+        var rows = [];
+        for (var i = 0, len = items.length; i < len; i++) {
+          rows.push(template.replace('{NAME}', 'item ' + items[i].name).replace('{INITIAL_VALUE}', 'value initial for ' + items[i].initialValue));
+        }
+        target.append(rows.join(''));
+      }
+      
+      function renderItems3() {
+        var salida = "";
+        for (var i = 0, len = items.length; i < len; i++) {
+          salida += (template.replace('{NAME}', 'item ' + items[i].name).replace('{INITIAL_VALUE}', 'value initial for ' + items[i].initialValue));
+        }
+        target.append(salida);
+      }
+      
+      function iterate(items, fn, cb) {
+        var len = items.length;
+        var current = 0;
+        //closure fuction to iterate over the items async
+        var process = function(lastValue) {
+          //var currentItem
+          
+          if (current == len) {
+            cb && cb(lastValue);
+            return;
+          }
+          var item = items[current++];
+          setTimeout(function() {
+            fn(item, function(val) {
+              process(val && lastValue);
+            });
+          }, 50)
+          
+        };
+        process(true);
+      }
+      
+      function renderItems4() {
+      
+      }
+      
+      $(function() {
+        items = createItems();
+        
+        renderItems();        
+        renderItems2();
+      });
+    </script>
+    <div class="forms">
+      <ul class="fields">
+      </ul>
+    </div>
+  </body>
+</html>

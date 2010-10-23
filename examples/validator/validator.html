@@ -35,6 +35,14 @@
         return val != null && val != "";
       }
       
+      function validateFruits(field, val, validator, callback) {
+        var isValid = field.length > 0 && field.length < 4;
+        //when async method is used this call is mandatory
+        callback(isValid);
+        //used in sync validation
+        return isValid;
+      }
+      
       function checkUserName(field, val, validator, callback) {
         //simulate an ajax call
         setTimeout(function() {
@@ -137,12 +145,50 @@
             <li>
               <div>
                 <label>
-                  Score (1-10) 
+                  Score (1-10): 
                 </label>
                 <input type="text" id="Puntuation" />
                 <div class="validator sync  required range" data-field="#Puntuation" data-min-value="1" data-max-value="10">
                   <p>
                     Please provide a puntuation between 1 and 10 only!
+                  </p>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div>
+                <label>
+                  Fruits:  
+                </label>
+                <div class="check-wrapper">
+                   <input type="checkbox" name="fruits" id="f1" value="orange" /><label for="f1">Orange</label><br />
+                   <input type="checkbox" name="fruits" id="f2" value="apple" /><label for="f2">Apple</label><br />
+                   <input type="checkbox" name="fruits" id="f3" value="pear" /><label for="f3">Pear</label><br />
+                   <input type="checkbox" name="fruits" id="f4" value="grapefruit" /><label for="f4">Grapefruit</label><br />
+                   <input type="checkbox" name="fruits" id="f5" value="grape" /><label for="f5">Grape</label><br />
+                </div>
+                <div class="validator sync custom" data-field="input[name=fruits]" data-custom-function="validateFruits" >
+                  <p>
+                    Choose at least 1 fruit and a maximum of 3 fruits
+                  </p>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div>
+                <label>
+                  Favorite OS:  
+                </label>
+                <div class="radio-wrapper">
+                   <input type="radio" name="os" id="f6" value="orange" /><label for="f6">Orange</label><br />
+                   <input type="radio" name="os" id="f7" value="apple" /><label for="f7">Apple</label><br />
+                   <input type="radio" name="os" id="f8" value="pear" /><label for="f8">Pear</label><br />
+                   <input type="radio" name="os" id="f9" value="grapefruit" /><label for="f9">Grapefruit</label><br />
+                   <input type="radio" name="os" id="f10" value="grape" /><label for="f10">Grape</label><br />
+                </div>
+                <div class="validator sync required" data-field="input[name=os]" >
+                  <p>
+                    Please select one.
                   </p>
                 </div>
               </div>
