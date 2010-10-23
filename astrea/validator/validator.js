@@ -27,20 +27,21 @@
   }
   
   function iterate(items, fn, cb) {
-    //copy the items
-    var copied = [].concat($.makeArray(items));
+    var len = items.length;
+    var current = 0;
     //closure fuction to iterate over the items async
     var process = function(lastValue) {
       //var currentItem
-      
-      if (copied.length == 0) {
+      if (current == len) {
         cb && cb(lastValue);
         return;
       }
-      var item = copied.shift();
-      fn(item, function(val) {
-        process(val && lastValue);
-      });
+      var item = items[current++];
+      setTimeout(function () {
+        fn(item, function(val) {
+          process(val && lastValue);
+        });
+      },50);
     };
     process(true);
   }
@@ -101,7 +102,7 @@
       if (!exp || exp == '') 
         return false;
       try {
-        var rx = null; 
+        var rx = null;
         if (this._validateNotNullOrEmpty(modifiers)) {
           rx = new RegExp(exp, modifiers);
         }
