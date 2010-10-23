@@ -36,7 +36,8 @@
       }
       
       function validateFruits(field, val, validator, callback) {
-        var isValid = field.length > 0 && field.length < 4;
+        var valid = field.filter(':checked');
+        var isValid = valid.length > 0 && valid.length < 4;
         //when async method is used this call is mandatory
         callback(isValid);
         //used in sync validation
