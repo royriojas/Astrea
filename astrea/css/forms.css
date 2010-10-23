@@ -4,25 +4,25 @@
 .forms .legend { display:block; background:#bbb; color:#000; font-weight:bold; font-size:16px; padding:10px; }
 .forms ul.fields { padding:10px; }
 .forms ul.fields li { min-height:40px; padding-top:8px; padding-bottom:5px; padding-left:5px; border-top: 1px dashed #ddd; }
-.forms ul.fields li label { display:inline-block; width:150px; }
-.forms ul.fields li input { display:inline-block; width: 250px; }
+.forms ul.fields li label { display:inline-block; width:150px; vertical-align:middle; padding-right: 10px; }
+.forms ul.fields li input { display:inline-block; width: 250px; vertical-align:middle  }
 .forms ul.fields li input[type=text] { }
 .forms ul.fields li input[type=checkbox] { width:20px;  }
 .forms ul.fields li input[type=radio] { width:20px;  }
 .forms ul.fields li select { display:inline-block; width: 250px;  }
 .forms ul.fields li textarea { width:250px; min-height:200px; }
-
-.forms ul.fields li .validator.failed { margin-left:155px; margin-top:5px; margin-bottom:6px; display:inline-block; }
+.forms ul.fields li .validator { margin-left:165px;  }
+.forms ul.fields li .validator.failed { margin-top:5px; margin-bottom:6px; display:inline-block; }
 .forms ul.fields li .validator .description { color: #333; font-size:10px; }
 .forms ul.fields li input.failed { border:1px solid #9F0909; }
-
-.forms .buttons a.button { display:inline-block; height:30px; line-height:30px; text-align:center; padding:0 10px; background: #eee; border:1px solid #999; text-decoration:none; color: #666; margin-right:10px; outline: 0; }
-.forms .buttons a.button:hover { background:#ddd; }
+.forms .buttons  {  }
+.forms a.button { display:inline-block; height:30px; line-height:30px; text-align:center; padding:0 10px; background: #eee; border:1px solid #999; text-decoration:none; color: #666; margin-right:10px; outline: 0; }
+.forms a.button:hover { background:#ddd; }
 
 .forms .validation-summary { border:1px dashed red;color:#9F0909;display:none;margin-bottom:16px;margin-top:10px;padding:13px 20px;text-align:center;}
 
 .forms ul.fields li:nth-of-type(2n+1) { background:#eeefef; }
-.forms { width: 500px;}
+.forms { width: 500px; }
 .forms .check-wrapper,
 .forms .radio-wrapper { display: inline-block; vertical-align:middle }
 

@@ -8,27 +8,41 @@
     <link type="text/css" href="../../astrea/css/reset-base.css" rel="stylesheet">
     <link type="text/css" href="../../astrea/css/forms.css" rel="stylesheet">
     <script src="../../astrea/profile/profile.js"></script>
+    <!-- validator javascript files -->
+    <link type="text/css" href="../../astrea/validator/validator.css" rel="stylesheet">
+    <script src="../../astrea/validator/validator.js"></script>
+    <style type="text/css">
+      .forms {
+        width: 100%;
+      }
+      
+      .forms a.button {
+        width: 140px;
+      }
+      
+      .message {
+        padding: 20px;
+        color: white;
+        background: green;
+        text-align: center;
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <script>
       
-      
-      var template = "<li><div><label>{NAME}</label><input type='text' value='{INITIAL_VALUE}' /></div></li>";
-      var target = $('ul.fields');
-      var MAX_NUM_ITEMS = 1000;
-      var items; 
-      
-      function createItems() {
-        var arr = [];
-        for (var i = 0; i < MAX_NUM_ITEMS; i++) {
-          arr.push({ name : 'Item ' + i, initialValue : i });
-        }
-        return arr;
+      function log(msg) {
+        $('.log').show().text(msg);
       }
       
+      var template = "<li><div><label>{NAME}</label><input type='text' value='{INITIAL_VALUE}' /></div></li>";
+      
+      var maxNumItems = 1000000;
+      var items = [];
       
       function renderItems() {
-        for (var i = 0; i < 1000; i++) {
+        for (var i = 0, len = items.length; i < len; i++) {
           target.append(template.replace('{NAME}', 'item ' + i).replace('{INITIAL_VALUE}', 'value initial for ' + i));
         }
       }
@@ -60,30 +74,250 @@
             cb && cb(lastValue);
             return;
           }
+          var old = current;
           var item = items[current++];
           setTimeout(function() {
             fn(item, function(val) {
               process(val && lastValue);
-            });
-          }, 50)
+            }, old);
+          }, 0);
           
         };
         process(true);
       }
       
-      function renderItems4() {
-      
+      function renderItems4(cb) {
+        var itemsPerIteration = parseInt($('#stepsPerRenderIteration').val());
+        var salida = "";
+        iterate(items, function(item, cb, index) {
+          salida += (template.replace('{NAME}', 'item ' + items[index].name).replace('{INITIAL_VALUE}', 'value initial for ' + items[index].initialValue));
+          if (index % itemsPerIteration == 0) {
+            target.append(salida);
+            salida = "";
+          }
+          cb(true);
+        }, function(result) {
+          cb && cb();
+        })
       }
       
+      var target;
+      var processing = false;
       $(function() {
-        items = createItems();
+        target = $('ul.fields.container');
         
-        renderItems();        
-        renderItems2();
+        $('a.process').bind('validationsuccess', function(e) {
+        
+          if (items.length == 0 || processing == true) {
+            log('Not items found... or currently processing a task');
+            return false;
+          }
+          var ele = $(this);
+          var suffix = ele.attr('data-suffix');
+          var fn = "renderItems" + suffix;
+          var nonblocking = suffix == "4";
+          target.empty();
+          console.profile(fn);
+          processing = true;
+          if (!nonblocking) {
+            window[fn] && window[fn]();
+            processing = false;
+            console.profileEnd(fn)
+            log(JSON.stringify(console.profileResult(fn)));
+          }
+          else {
+            window[fn](function() {
+              processing = false;
+              console.profileEnd(fn);
+              log(JSON.stringify(console.profileResult(fn)));
+            });
+          }
+          return false;
+        });
+        
+        
+        $('a.create').bind('validationsuccess', function() {
+          if (items.length > 0) {
+            log('items already created');
+            return false;
+          }
+          
+          log('creating items');
+          processing = true;
+          maxNumItems = parseInt($('#num').val());
+          creationSteps = parseInt($('#steps').val());
+          
+          (function() {
+            var i = items.length;
+            log('creating item ' + i);
+            var index = 0;
+            for (var j = 0; j < creationSteps; j++) {
+              index = i + j;
+              items.push({
+                name: 'Item ' + (index),
+                initialValue: (index)
+              });
+              if (index >= maxNumItems - 1) {
+                log('Finished... let\'s have some fun blocking the browser');
+                processing = false;
+                return;
+              }
+            }
+            
+            if (items.length == maxNumItems) {
+              log('Finished... let\'s have some fun blocking the browser');
+              processing = false;
+              return;
+            }
+            setTimeout(arguments.callee, 0);
+          })();
+          return false;
+        });
+        
+        $('.forms').validator();
+        
       });
+      
+      function validateExecution(field, val, validator, callback) {
+        callback(!processing);
+        return !processing;
+      }
+      
+      function arrayExist(field, val, validator, callback) {
+        var isValid = items != null && items.length > 0;
+        callback(isValid);
+        return isValid;
+      }
     </script>
     <div class="forms">
-      <ul class="fields">
+      <fieldset>
+        <div class="legend">
+          Performance test
+        </div>
+        <ul class="fields">
+          <li>
+            <div>
+              <label>
+                Number of elements for the dummy array
+              </label>
+              <input type="text" id="num" />
+              <div class="validator regex initArrayGroup" data-regex="\d+" data-field="#num" data-modifiers="g">
+                <p>
+                  Only numbers allowed
+                </p>
+              </div>
+              <div class="validator range initArrayGroup" data-min-value="1000" data-max-value="1000000" data-field="#num">
+                <p>
+                  Please choose a number between 1000 and 1000000
+                </p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <label>
+                Number of Items to create per iteration
+              </label>
+              <input type="text" id="steps" />
+              <div class="validator regex initArrayGroup" data-regex="\d+" data-field="#steps" data-modifiers="g">
+                <p>
+                  Only numbers allowed
+                </p>
+              </div>
+              <div class="validator range initArrayGroup" data-min-value="50" data-max-value="1000" data-field="#steps">
+                <p>
+                  Steps should be between 50 and 1000
+                </p>
+              </div>
+              <div class="validator custom nonblocking validateExecution" data-custom-function="arrayExist" data-field="#num" data-dynamic="false">
+                <p>
+                  Please initialize the array of elements first!
+                </p>
+              </div>
+              <div class="validator custom nonblocking validateExecution" data-custom-function="validateExecution" data-field="#num" data-dynamic="false">
+                <p>
+                  Please be patient while the current task end
+                </p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="buttons">
+              <p>
+                <a href="#" class="button create validation-trigger" data-validation-group=".initArrayGroup"><span>Create</span></a>
+                Please be patient... the Items are created in an non blocking way but it will take time to end
+              </p>
+            </div>
+          </li>
+        </ul>
+      </fieldset>
+      <fieldset>
+        <div class="legend">
+          Blocking the browser
+        </div>
+        <div class="log message">
+        </div>
+        <ul class="fields">
+          <li>
+            <div>
+              <p>
+                <a href="#" class="button process validation-trigger" data-validation-group=".validateExecution" data-suffix=""><span>for loop </span></a>
+                Classic for loop adding each node to the DOM just after created
+              </p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <p>
+                <a href="#" class="button process validation-trigger" data-validation-group=".validateExecution" data-suffix="2"><span>join method</span></a>
+                Classic for loop but storing the rows in an array and adding them using the Array.join 
+              </p>
+            </div>
+          </li>
+          <li>
+            <div>
+              <p>
+                <a href="#" class="button process validation-trigger" data-validation-group=".validateExecution" data-suffix="3"><span>string concatenation</span></a>
+                Classic for loop using string concatenation and adding it at the end
+              </p>
+            </div>
+          </li>
+        </ul>
+      </fieldset>
+      <fieldset>
+        <div class="legend">
+          Not Blocking the browser
+        </div>
+        <ul class="fields">
+          <li>
+            <div>
+              <label>
+                Number of Items to process per iteration
+              </label>
+              <input type="text" id="stepsPerRenderIteration" />
+              <div class="validator regex nonblocking" data-regex="\d+" data-field="#stepsPerRenderIteration" data-modifiers="g">
+                <p>
+                  Only numbers allowed
+                </p>
+              </div>
+              <div class="validator range nonblocking" data-min-value="50" data-max-value="1000" data-field="#stepsPerRenderIteration">
+                <p>
+                  Steps should be between 50 and 1000
+                </p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <p>
+                <a href="#" class="button process validation-trigger" data-validation-group=".nonblocking" data-suffix="4"><span>non blocking iteration</span></a>
+                Non Blocking operation. The items are rendered in blocks 
+              </p>
+            </div>
+          </li>
+        </ul>
+      </fieldset>
+      <ul class="fields container">
       </ul>
     </div>
   </body>
