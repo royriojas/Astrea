@@ -1,41 +1,55 @@
-/**
- * create a object namespace
- *
- * @param {Object} ns the namespace to be created
- * @example
- *
- * $.ns('my.custom.namespace');
- *
- * will create under the window global object this structure:
- *
- * window.my {
- *  custom : {
- *    namespace : { }
- *  }
- * }
- */
-jQuery.ns = function(ns) {
-  var nOut = window;
-  ns.split(".").each(function (i, v) {
-    if (typeof nOut[v] == "undefined") {
-      nOut[v]] = {};
+
+(function ($) {
+  /**
+   * create a object namespace
+   *
+   * @param {Object} ns the namespace to be created
+   * @example
+   *
+   * $.ns('my.custom.namespace');
+   *
+   * will create under the window global object this structure:
+   *
+   * window.my {
+   *  custom : {
+   *    namespace : { }
+   *  }
+   * }
+   */
+  $.ns = function(ns) {
+    var nOut = window;
+    ns.split(".").each(function (i, v) {
+      if (typeof nOut[v] == "undefined") {
+        nOut[v]] = {};
+      }
+      nOut = nOut[v];
+    });  
+    return nOut;
+  };
+  
+  $.ns('$.string');
+  
+  /**
+   * string.format. Replaces the {n} tokens found in the string 
+   * with the arguments in the n index the first argument is the 
+   * string itself so the arguments to be replaced start at index 1
+   * @param {Object} s the string to be formatted
+   */
+  
+ 
+  
+  $.string.format = function(s) {
+    for (var i = 1; i < arguments.length; i++) {
+      var re = new RegExp('\\{' + (i - 1) + '\\}', 'gm');
+      s = s.replace(re, arguments[i]);
     }
-    nOut = nOut[v];
-  });  
-  return nOut;
-};
-/**
- * replaces the {n} tokens found in the string with the arguments in the n index
- * the first argument is the string itself so the arguments to be replaced start at index 1
- * @param {Object} s the string to be formatted
- */
-jQuery.stringFormat = function(s) {
-  for (var i = 1; i < arguments.length; i++) {
-    var re = new RegExp('\\{' + (i - 1) + '\\}', 'gm');
-    s = s.replace(re, arguments[i]);
-  }
-  return s;
-}
+    return s;
+  };
+  
+  
+  
+})(jQuery);
+
 
 jQuery.ns('Astrea.Util');
 

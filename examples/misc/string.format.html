@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <title>String format test </title>
+    <!-- jQuery --><script src="../../lib/jquery/jquery.js"></script>
+    <!-- jQuery UI --><script src="../../lib/jqueryui/jquery-ui.js"></script>
+    <link type="text/css" href="../../lib/jqueryui/css/ui-lightness/jquery-ui-1.8.5.custom.css" rel="stylesheet">
+    <link type="text/css" href="../../astrea/css/reset-base.css" rel="stylesheet">
+    <link type="text/css" href="../../astrea/css/forms.css" rel="stylesheet">
+    <script src="../../astrea/profile/profile.js"></script>
+  </head>
+  <body>
+    <script>
+      function log(msg) {
+        $('.log').show().text(msg);
+      }
+      
+      $.string = {};
+      
+      $.string._regex = {
+        cache: {},
+        getRegex: function(args) {
+          var regex = $.string._regex.cache[args];
+          if (!regex) {
+            regex = $.string._regex.cache[args] = new RegExp('\\{' + (args) + '\\}', 'gm');
+          }
+          return regex;
+        }
+      }
+      
+      $.string.format = function(s) {
+        for (var i = 1; i < arguments.length; i++) {
+          var re = $.string._regex.getRegex(i - 1);
+          s = s.replace(re, arguments[i]);
+        }
+        return s;
+      };
+      
+      $.string.formatOld = function(s) {
+        for (var i = 1; i < arguments.length; i++) {
+          var re = new RegExp('\\{' + (i - 1) + '\\}', 'gm');
+          s = s.replace(re, arguments[i]);
+        }
+        return s;
+      };
+      
+      $.string.format3 = function() {
+        var pattern = /\{\d+\}/g;
+        var args = arguments;
+        var s = Array.prototype.shift.apply(args);
+        return s.replace(pattern, function(c) {
+          return args[c.match(/\d+/)];
+        });
+      }
+      
+      function doTest() {
+      
+        console.profile('stringFormat');
+        for (var i = 0; i < 100; i++) {
+          var s = $.string.format('a tiny {0} string with some {1} replacement tokens {2} that will show you some performance test {3}', 'nuevo', 'valor', 'ropa', 'coma');
+        }
+        console.profileEnd('stringFormat');
+        console.profile('stringFormatOld');
+        for (var i = 0; i < 100; i++) {
+          var s = $.string.formatOld('a tiny {0} string with some {1} replacement tokens {2} that will show you some performance test {3}', 'nuevo', 'valor', 'ropa', 'coma');
+        }
+        console.profileEnd('stringFormatOld');
+        console.profile('stringFormat3');
+        for (var i = 0; i < 100; i++) {
+          var s = $.string.format3('a tiny {0} string with some {1} replacement tokens {2} that will show you some performance test {3}', 'nuevo', 'valor', 'ropa', 'coma');
+        }
+        console.profileEnd('stringFormat3');
+        
+      }
+      
+      $(function() {
+        $('.performance button').click(function() {
+          doTest();
+        });
+      })
+    </script>
+    <div class="performance">
+      <button>
+        Click here to begin the test
+      </button>
+    </div>
+    <div class="log">
+    </div>
+  </body>
+</html>

@@ -423,9 +423,15 @@
       /* autoHideThreshold */ 
       autoHideThreshold : 4000 
     }
-  
-  
   });
+  
+  $.ui.validator.rules = [ {
+    name : '.required',
+    fn : function() {
+
+    }
+  } ];
+
   
   
   
