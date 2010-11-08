@@ -35,16 +35,16 @@
         return val != null && val != "";
       }
       
-      function validateFruits(field, val, validator, callback) {
+      function validateFruits(validator, val, field, callback) {
         var valid = field.filter(':checked');
         var isValid = valid.length > 0 && valid.length < 4;
         //when async method is used this call is mandatory
         callback(isValid);
         //used in sync validation
-        return isValid;
+        
       }
       
-      function checkUserName(field, val, validator, callback) {
+      function checkUserName(validator, val, field, callback) {
         //simulate an ajax call
         setTimeout(function() {
           var fname = $('#NameField').val();
@@ -76,7 +76,7 @@
                   First Name : 
                 </label>
                 <input id="NameField" type="text" />
-                <div class="validator sync  required" data-field="#NameField">
+                <div class="validator group01" data-field="#NameField" data-v-type="required">
                   <p>
                     Please provide your first name
                   </p>
@@ -92,7 +92,7 @@
                   Last Name : 
                 </label>
                 <input id="LastField" type="text" />
-                <div class="validator sync  required" data-field="#LastField">
+                <div class="validator group01" data-field="#LastField" data-v-type="required">
                   <p>
                     Please provide your last name
                   </p>
@@ -105,7 +105,7 @@
                   User Name : 
                 </label>
                 <input id="UserNameField" type="text" />
-                <div class="validator custom" data-field="#UserNameField" data-custom-function="checkUserName">
+                <div class="validator" data-field="#UserNameField" data-custom-function="checkUserName" data-v-type="custom">
                   <p>
                     The user name can't contains your first or last names
                   </p>
@@ -118,9 +118,9 @@
                   Email : 
                 </label>
                 <input id="EmailField" type="text" />
-                <div class="validator sync  required regex" data-field="#EmailField" data-regex="([\w-\.]+)@((?:[\w]+\.)+)([a-zA-Z]{2,4})" data-modifiers="">
+                <div class="validator group01" data-field="#EmailField" data-regex="([\w-\.]+)@((?:[\w]+\.)+)([a-zA-Z]{2,4})" data-modifiers="" data-v-type="regex" data-optional="true">
                   <p>
-                    Please enter a valida email
+                    Please enter a valid email
                   </p>
                 </div>
               </div>
@@ -136,7 +136,7 @@
                   <option value="3">jQuery UI</option>
                   <option value="4">Mootools</option>
                 </select>
-                <div class="validator sync  compare" data-field="#sprint" data-comparison-type="notEqual" data-comparison-value="-1">
+                <div class="validator group01" data-field="#sprint" data-comparison-type="notEqual" data-comparison-value="-1" data-v-type="compare">
                   <p>
                     Please select a project
                   </p>
@@ -149,7 +149,7 @@
                   Score (1-10): 
                 </label>
                 <input type="text" id="Puntuation" />
-                <div class="validator sync  required range" data-field="#Puntuation" data-min-value="1" data-max-value="10">
+                <div class="validator group01" data-field="#Puntuation" data-min-value="1" data-max-value="10" data-v-type="range">
                   <p>
                     Please provide a puntuation between 1 and 10 only!
                   </p>
@@ -168,7 +168,7 @@
                    <input type="checkbox" name="fruits" id="f4" value="grapefruit" /><label for="f4">Grapefruit</label><br />
                    <input type="checkbox" name="fruits" id="f5" value="grape" /><label for="f5">Grape</label><br />
                 </div>
-                <div class="validator sync custom" data-field="input[name=fruits]" data-custom-function="validateFruits" >
+                <div class="validator group01" data-field="input[name=fruits]" data-custom-function="validateFruits" data-v-type="custom" data-optional="false" data-auto-hide="false">
                   <p>
                     Choose at least 1 fruit and a maximum of 3 fruits
                   </p>
@@ -187,7 +187,7 @@
                    <input type="radio" name="os" id="f9" value="solaris" /><label for="f9">Solaris</label><br />
                    <input type="radio" name="os" id="f10" value="as/400" /><label for="f10">AS/400</label><br />
                 </div>
-                <div class="validator sync required" data-field="input[name=os]" >
+                <div class="validator group01" data-field="input[name=os]" data-v-type="required" >
                   <p>
                     Please select one.
                   </p>
@@ -205,16 +205,23 @@
             </li>
             <li>
               <div class="buttons">
-                <a href="#" class="validation-trigger button save" data-validation-method="async"><span>Validate the form!</span></a>
-                <a href="#" class="validation-trigger button save" data-validation-group=".sync" data-validation-method="sync"><span>Validate sync!</span></a>
+                <a href="#" class="validation-trigger button save"><span>Validate the form!</span></a>
+                <a href="#" class="validation-trigger button save" data-validation-group=".group01"><span>Validate group01!</span></a>
                 <a href="#" class="validation-clear button clear"><span>Clear the validators!</span></a>
               </div>
               <div class="note">
                 <p>
-                  Validate the form using the sync method will fail for the case of the current custom validator. Because it involves ajax validation. Which is asynchronous 
+                  All custom validators functions receive a callback, which should be called after the validation has been made. This decision has been made to allow asynchronous validations.
                 </p>
                 <p>
-                  So for this particular case we mark all the validators that can be validated in sync with the sync class, and set the data-validator-group property of the the button to only validate those fields 
+                  The first button will validate the entire form, all validators will be validated 
+                </p>
+                <p>
+                  The second button will validate only validators of the group01. 
+                </p>
+                <p>
+                  In some cases validators should only validate if some input has been entered. This is like make the validator optional.
+                  This allows to have validators that won't validate empty inputs. Like is the case of the email validator
                 </p>
               </div>
             </li>

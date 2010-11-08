@@ -23,7 +23,9 @@
   };
   
   var log = function() {
-    window.console && window.console.log && window.console.log.apply(window.console, arguments);
+    window.console &&
+    window.console.log &&
+    window.console.log.apply(window.console, arguments);
   }
   
   function iterate(items, fn, cb) {
@@ -46,21 +48,51 @@
     process(true);
   }
   
-  $.widget("ui.validator", {
-    /**
-     * Creates the ui and initialize dependencies
-     */
-    _create: function() {
-      var opts = this.options, ele = this.element;
-      var me = this;
-      
-      me.refresh();
-      
+  function notNullOrEmpty(val) {
+    return (val != null) && (val != '');
+  }
+  
+  var rules = {};
+  $.astrea = $.astrea || {};
+  $.astrea.validator = {
+    addRule: function(name, func, checkEmpty) {
+      rules[name] = checkEmpty ? function(validator, val, field, callback) {
+        var allowEmpty = !(validator.attr('data-optional') === "false");
+        if (allowEmpty && val === '') {
+          callback(true);
+          return;
+        };
+        func(validator, val, field, callback);
+      } : func;
     },
-    _validateNotNullOrEmpty: function(validator, val) {
-      return (val != null) && (val != '');
+    getRule: function(name) {
+      var fn = rules[name];
+      return fn;
     },
-    _validateCompare: function(validator, val) {
+    checkRule: function(validator, val, field, callback) {
+      var validatorType = $.trim(validator.attr('data-v-type'));      
+      var fn = $.astrea.validator.getRule(validatorType);
+      
+      if (fn) {
+        fn(validator, val, field, callback);
+      }
+      else {
+        //if not validation function this validator should fail? or succeed?
+        callback(true); //trying to succeed
+      }
+    }
+  }
+  
+  var basicRules = [{
+    name: 'required',
+    fn: function(validator, val, field, callback) {
+      var valid = notNullOrEmpty(val);
+      callback(valid);
+    },
+    checkEmpty : false
+  }, {
+    name: 'compare',
+    fn: function(validator, val, field, callback) {
       var compareValue = validator.attr('data-comparison-value'), valid = false;
       //extract the comparison type. if none is provided the comparison type not equal will be used
       var comparisonType = validator.attr('data-comparison-type') || comparison.notEqual;
@@ -92,34 +124,11 @@
       else {
         valid = true;
       }
-      return valid;
-    },
-    
-    _validateRegex: function(validator, val) {
-      var exp = $.trim(validator.attr('data-regex'));
-      var modifiers = $.trim(validator.attr('data-modifiers'));
-      modifiers = (!modifiers || modifiers == '') ? null : modifiers;
-      if (!exp || exp == '') 
-        return false;
-      
-      try {
-        var rx = null;
-        if (this._validateNotNullOrEmpty(modifiers)) {
-          rx = new RegExp(exp, modifiers);
-        }
-        else {
-          rx = new RegExp(exp);
-        }
-      
-        return rx != null && rx.test(val);
-      } 
-      catch (e) {
-        log(e.message);
-      }
-      return false;
-    },
-    
-    _validateRangeValidator: function(validator, val) {
+      callback(valid);
+    }
+  }, {
+    name: 'range',
+    fn: function(validator, val, field, callback) {
       var valid = false;
       try {
         var minVal = validator.attr('data-min-value');
@@ -132,27 +141,77 @@
       catch (e) {
         log('Error parsing number : ' + e.message);
       }
-      return valid;
-    },
-    
-    _validateCustomValidator: function(validator, val, field, callback) {
-      var func = validator.attr('data-custom-function'), valid = false;
-      if (!func) 
+      callback(valid);
+    }
+  }, {
+    name: 'regex',
+    fn: function(validator, val, field, callback) {
+      var exp = $.trim(validator.attr('data-regex'));
+      var valid = false;
+      var modifiers = $.trim(validator.attr('data-modifiers'));
+      modifiers = (!modifiers || modifiers == '') ? null : modifiers;
+      if (!exp || exp == '') 
         return false;
-      if (typeof window[func] == 'function') {
-        valid = window[func](field, val, validator, callback) !== false;
+      
+      try {
+        var rx = null;
+        if (notNullOrEmpty(modifiers)) {
+          rx = new RegExp(exp, modifiers);
+        }
+        else {
+          rx = new RegExp(exp);
+        }
+        valid = rx != null && rx.test(val);
+      } 
+      catch (e) {
+        log(e.message);
       }
-      return valid;
+      callback(valid);
+    }
+  }, {
+    name: 'custom',
+    fn: function(validator, val, field, callback) {
+      var func = validator.attr('data-custom-function');
+      if (!func) {
+        callback && callback(false);
+        return;
+      }
+      if (typeof window[func] == 'function') {
+        //custom validation that do ajax work should return undefined and use the callback
+        window[func](validator, val, field, callback) !== false;
+      }
+    }
+  }];
+  
+  var addRule = $.astrea.validator.addRule;
+  
+  $.each(basicRules, function (i, obj) {
+    var checkEmpty = obj.checkEmpty == null ? true : obj.checkEmpty;
+    addRule(obj.name, obj.fn, checkEmpty);
+  })
+  
+  $.widget("ui.validator", {
+    /**
+     * Creates the ui and initialize dependencies
+     */
+    _create: function() {
+      var opts = this.options, ele = this.element;
+      var me = this;
+      
+      me.refresh();
+      
     },
-    
     _evaluateVisibility: function(validator, valid, $field) {
       if (!valid) {
-        this.options.hideShow && validator.fadeIn('fast');
-        if (this.options.autoHide) {
+        this.options.showOnError && validator.fadeIn('fast');
+        var autoHide = this.options.autoHide;
+        var noHide = validator.attr('data-auto-hide') === "false";
+        
+        if (autoHide && !noHide) {
           var timer = validator.data('showTimer');
-          clearTimeout(timer); 
-          timer = setTimeout(function () {
-            validator.fadeOut('fast');
+          clearTimeout(timer);
+          timer = setTimeout(function() {
+            validator.fadeOut('slow');
           }, this.options.autoHideThreshold);
           validator.data('showTimer', timer);
         }
@@ -161,7 +220,7 @@
         this.options.triggerEvents && $field.trigger('validationFailure', [validator]);
       }
       else {
-        this.options.hideShow && validator.fadeOut('fast');
+        this.options.showOnError && validator.fadeOut('slow');
         $field.removeClass(this.options.failureClass);
         validator.removeClass(this.options.failureClass);
         this.options.triggerEvents && $field.trigger('validationSuccess', [validator]);
@@ -190,49 +249,19 @@
         notifyCallback && notifyCallback(true);
         return true;
       }
-      
       var val = this._getVal($field);
-      
-      var onValidate = function(v, iv, f) {
-        me._evaluateVisibility(v, iv, f);
-        notifyCallback && notifyCallback(iv);
-      };
-      //only validate visible fields
-      
-      valid = true;
-      if (validator.is('.required')) {
-        valid = this._validateNotNullOrEmpty(validator, val);
-      }
-      if (validator.is('.compare')) {
-        valid = valid && this._validateCompare(validator, val);
-      }
-      if (validator.is('.regex')) {
-        valid = valid && this._validateRegex(validator, val);
-      }
-      if (validator.is('.range')) {
-        valid = valid && this._validateRangeValidator(validator, val);
-      }
-      if (validator.is('.custom')) {
-        var validForCallback = valid;
-        valid = valid &&
-        this._validateCustomValidator(validator, val, $field, function(isValid) {
-          onValidate(validator, validForCallback && isValid, $field);
-        });
-        if (notifyCallback) {
-          return;
-        }
-      }
-      
-      onValidate(validator, valid, $field);
-      return valid;
+      $.astrea.validator.checkRule(validator, val, $field, function(isValid) {
+        me._evaluateVisibility(validator, isValid, $field);
+        notifyCallback && notifyCallback(isValid);
+      });      
     },
     _initValidator: function(validator) {
       if (!validator || validator.length == 0 || validator.attr('data-validator-initialized') == 'true') 
         return;
       
       var field = $(validator.attr('data-field'));
-      var dynamic = $.trim(validator.attr('data-dynamic')) === 'false';//bind events automatically??
-      if (field.length == 0 || dynamic) 
+      var notDynamic = $.trim(validator.attr('data-dynamic')) === 'false';//bind events automatically??
+      if (field.length == 0 || notDynamic) 
         return;//no field to initialize
       var me = this;
       var opts = this.options;
@@ -277,7 +306,7 @@
       if (opts.summary) {
         var summary = ele.find(opts.summary);
         summary.toggleClass(opts.failureClass, !isValid);
-        opts.hideShow && ((!isValid) ? summary.show() : summary.hide());
+        opts.showOnError && ((!isValid) ? summary.show() : summary.hide());
       }
     },
     
@@ -286,7 +315,7 @@
      * @param {Object} selector
      * @param {Object} onValidate
      */
-    validateAsync: function(selector, onValidate) {
+    validate: function(selector, onValidate) {
       var me = this, opts = this.options;
       selector = selector || opts.validators;
       var validators = this.element.find(selector).filter(opts.validators);
@@ -301,7 +330,6 @@
     refresh: function() {
       var me = this, opts = this.options, ele = this.element;
       
-      
       opts.dynamic &&
       ele.find(opts.validators).each(function() {
         me._initValidator($(this));
@@ -311,37 +339,30 @@
       ele.find(opts.triggers).bindUnique('click.validate', function(e) {
         var $this = $(this);
         var validationGroup = $this.attr('data-validation-group') || opts.validators;
-        var validationType = $this.attr('data-validation-method') || 'sync';
-        
-        var doValidate = function (isValid) {
+        var doValidate = function(isValid) {
           if (isValid) {
-              $this.triggerHandler('validationsuccess');
-              $this.removeClass(opts.failureClass);
+            $this.triggerHandler('validationsuccess');
+            $this.removeClass(opts.failureClass);
+          }
+          else {
+            $this.triggerHandler('validationfailure');
+            $this.addClass(opts.failureClass);
+            if (opts.autoHide) {
+              var timer = $this.data('showTimer');
+              timer = setTimeout(function() {
+                $this.removeClass(opts.failureClass);
+              }, opts.autoHideThreshold);
+              
+              $this.data('showTimer', timer);
             }
-            else {
-              $this.triggerHandler('validationfailure');
-              $this.addClass(opts.failureClass);
-              if (opts.autoHide) {
-                var timer = $this.data('showTimer');
-                timer = setTimeout(function () {
-                  $this.removeClass(opts.failureClass);
-                },opts.autoHideThreshold);
-                
-                $this.data('showTimer', timer);
-                
-              }
-            }
+          }
         };
         
-        if (validationType == 'async') {
-          me.validateAsync(validationGroup, function(isValid) {
-            doValidate(isValid);
-          });
-        }
-        if (validationType == 'sync') {
-          isValid = me.validate(validationGroup);
+        
+        me.validate(validationGroup, function(isValid) {
           doValidate(isValid);
-        }
+        });
+                
         //always cancel default, and prevent propagation
         return false;
       });
@@ -362,7 +383,7 @@
         var field = $($this.attr('data-field'));
         field.removeClass(me.options.failureClass);
         $this.removeClass(me.options.failureClass);
-        opts.hideShow && $this.hide();
+        opts.showOnError && $this.hide();
       });
       var triggers;
       if (selector === opts.validators) {
@@ -374,34 +395,15 @@
       triggers.removeClass(opts.failureClass);
       if (opts.summary) {
         var summary = ele.find(opts.summary).removeClass(opts.failureClass);
-        opts.hideShow && summary.hide();
+        opts.showOnError && summary.hide();
       }
     },
-    
-    /**
-     * execute the validation of the validators that match the selector
-     * @param {Object} selector
-     * @return {Boolean} whether the validation has passed
-     **/
-    validate: function(selector) {
-      selector = selector || this.options.validators;
-      var me = this;
-      var validators = this.element.find(selector).filter(this.options.validators);
-      var isValid = true;
-      validators.each(function() {
-        var lastVal = me._validateValidator($(this));
-        isValid = isValid && lastVal;
-      });
-      me._showSummary(isValid);
-      return isValid;
-    },
-    
     /* defaults */
     options: {
       /* the class for the validators */
       validators: '.validator',
       /* show the validators on Error */
-      hideShow: true,
+      showOnError: true,
       /* the class added to the field and the validator when the field does not pass the validation */
       failureClass: 'failed',
       /* if is dynamic the target fields will execute the validators on blur, change or click events */
@@ -419,21 +421,10 @@
       /* clear trigger */
       clearTrigger: 'validation-clear',
       /* autoHide */
-      autoHide : true,
-      /* autoHideThreshold */ 
-      autoHideThreshold : 4000 
+      autoHide: true,
+      /* autoHideThreshold */
+      autoHideThreshold: 4000
     }
   });
-  
-  $.ui.validator.rules = [ {
-    name : '.required',
-    fn : function() {
-
-    }
-  } ];
-
-  
-  
-  
   
 })(jQuery);

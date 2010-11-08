@@ -180,13 +180,11 @@
       
       function validateExecution(field, val, validator, callback) {
         callback(!processing);
-        return !processing;
       }
       
       function arrayExist(field, val, validator, callback) {
         var isValid = items != null && items.length > 0;
         callback(isValid);
-        return isValid;
       }
     </script>
     <div class="forms">
@@ -201,12 +199,12 @@
                 Number of elements for the dummy array
               </label>
               <input type="text" id="num" />
-              <div class="validator regex initArrayGroup" data-regex="\d+" data-field="#num" data-modifiers="g">
+              <div class="validator initArrayGroup" data-regex="\d+" data-field="#num" data-modifiers="g" data-v-type="regex" data-optional="false">
                 <p>
                   Only numbers allowed
                 </p>
               </div>
-              <div class="validator range initArrayGroup" data-min-value="1000" data-max-value="1000000" data-field="#num">
+              <div class="validator initArrayGroup" data-min-value="1000" data-max-value="1000000" data-field="#num" data-v-type="range" data-optional="false">
                 <p>
                   Please choose a number between 1000 and 1000000
                 </p>
@@ -219,24 +217,24 @@
                 Number of Items to create per iteration
               </label>
               <input type="text" id="steps" />
-              <div class="validator regex initArrayGroup" data-regex="\d+" data-field="#steps" data-modifiers="g">
+              <div class="validator initArrayGroup" data-regex="\d+" data-field="#steps" data-modifiers="g" data-v-type="regex" data-optional="false">
                 <p>
                   Only numbers allowed
                 </p>
               </div>
-              <div class="validator range initArrayGroup" data-min-value="50" data-max-value="1000" data-field="#steps">
+              <div class="validator initArrayGroup" data-min-value="50" data-max-value="1000" data-field="#steps" data-v-type="range" data-optional="false">
                 <p>
                   Steps should be between 50 and 1000
                 </p>
               </div>
-              <div class="validator custom nonblocking validateExecution" data-custom-function="arrayExist" data-field="#num" data-dynamic="false">
+              <div class="validator nonblocking validateExecution" data-custom-function="arrayExist" data-field="#num" data-dynamic="false" data-v-type="custom" data-optional="false">
                 <p>
                   Please initialize the array of elements first!
                 </p>
               </div>
-              <div class="validator custom nonblocking validateExecution" data-custom-function="validateExecution" data-field="#num" data-dynamic="false">
+              <div class="validator nonblocking validateExecution" data-custom-function="validateExecution" data-field="#num" data-dynamic="false" data-v-type="custom" data-optional="false">
                 <p>
-                  Please be patient while the current task end
+                  Please be patient while the current task ends
                 </p>
               </div>
             </div>
@@ -295,12 +293,12 @@
                 Number of Items to process per iteration
               </label>
               <input type="text" id="stepsPerRenderIteration" />
-              <div class="validator regex nonblocking" data-regex="\d+" data-field="#stepsPerRenderIteration" data-modifiers="g">
+              <div class="validator nonblocking" data-regex="\d+" data-field="#stepsPerRenderIteration" data-modifiers="g" data-v-type="regex" data-optional="false">
                 <p>
                   Only numbers allowed
                 </p>
               </div>
-              <div class="validator range nonblocking" data-min-value="50" data-max-value="1000" data-field="#stepsPerRenderIteration">
+              <div class="validator nonblocking" data-min-value="50" data-max-value="1000" data-field="#stepsPerRenderIteration" data-v-type="range" data-optional="false">
                 <p>
                   Steps should be between 50 and 1000
                 </p>
