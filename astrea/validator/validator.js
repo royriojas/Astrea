@@ -23,9 +23,9 @@
   };
   
   var log = function() {
-    window.console &&
-    window.console.log &&
-    window.console.log.apply(window.console, arguments);
+    console &&
+    console.log &&
+    console.log.apply(console, arguments);
   }
   
   function iterate(items, fn, cb) {

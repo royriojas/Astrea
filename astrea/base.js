@@ -20,7 +20,7 @@
     var nOut = window;
     ns.split(".").each(function (i, v) {
       if (typeof nOut[v] == "undefined") {
-        nOut[v]] = {};
+        nOut[v] = {};
       }
       nOut = nOut[v];
     });  
