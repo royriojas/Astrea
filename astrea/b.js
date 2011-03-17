@@ -3,12 +3,14 @@
  */
 (function ($) {
 
-  var Astrea = window.$a || {};
-
+  window.Astrea = window.Astrea || {};
+  
   if (Astrea.loaded)
     return; //just avoid to run this function again if already loaded astrea
-
+  
   $.extend(Astrea, {
+    w : window,
+    doc : document,
     /**
      * return a string formatted with the passed arguments
      * @example
@@ -26,7 +28,7 @@
       });
     },
     ns : function (namespace) {
-      var r = window;
+      var r = Astrea.w;
       var ns = namespace.split('.');
       for (var i = 0, len = ns.length; i < len; i++) {
         var part = ns[i];
@@ -36,6 +38,15 @@
         r = r[part];
       }
     }
+  });
+  
+  
+  Astrea.ns('Astrea.Sniff');
+  Astrea.Sniff.__defineGetter__("isiPad", function () {
+    return /^iPad$/.test(Astrea.w.navigator.platform); 
+  });
+  Astrea.Sniff.__defineGetter__("isiPhone", function () {
+    return /^iPhone$/.test(Astrea.w.navigator.platform); 
   });
 
   Astrea.loaded = true;

@@ -11,7 +11,7 @@ describe("Astrea", function () {
 
   });
   it('should exists', function () {
-    assert(window.$a).should(beAn, Object);
+    assert(window.$a != null).should(be, true);
   });
   it('format should be a method', function () {
     assert($a.format).should(beA, Function);
@@ -134,3 +134,32 @@ describe('Astrea.ns', function () {
   });
 });
 
+describe('Astrea.Sniff', function () {
+  it('should detect ipad when the platform contains iPad', function () {
+    var oldW = Astrea.w;
+    Astrea.w = {
+      navigator : {
+        platform : 'iPad'
+      }
+    };
+    
+    var isiPad = $a.Sniff.isiPad;
+    assert(isiPad).should(be, true);
+    $a.w = oldW;
+  })
+});
+
+describe('Astrea.Sniff', function () {
+  it('should detect iphone when the platform contains iPhone', function () {
+    var oldW = Astrea.w;
+    Astrea.w = {
+      navigator : {
+        platform : 'iPhone'
+      }
+    };
+    
+    var isiPad = $a.Sniff.isiPhone;
+    assert(isiPad).should(be, true);
+    $a.w = oldW;
+  })
+});
