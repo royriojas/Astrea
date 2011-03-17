@@ -1,3 +1,0 @@
-/**
- * @author Roy Riojas
- */

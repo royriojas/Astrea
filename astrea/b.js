@@ -22,8 +22,19 @@
       var args = arguments;
       var s = Array.prototype.shift.apply(args);
       return s.replace(pattern, function(c) {
-        return args[c.match(/\d+/)];
+        return args[c.match(/\d+/)] || '';
       });
+    },
+    ns : function (namespace) {
+      var r = window;
+      var ns = namespace.split('.');
+      for (var i = 0, len = ns.length; i < len; i++) {
+        var part = ns[i];
+        if (!r[part]) {
+          r[part] = {};
+        }
+        r = r[part];
+      }
     }
   });
 
