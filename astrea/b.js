@@ -21,8 +21,10 @@
      */
     format : function () {
       var pattern = /\{\d+\}/g;
-      var args = arguments;
-      var s = Array.prototype.shift.apply(args);
+      //safer way to convert a pseudo array to an object array
+      var args = Array.prototype.slice.call(arguments);
+      
+      var s = args.shift();
       return s.replace(pattern, function(c) {
         return args[c.match(/\d+/)] || '';
       });
