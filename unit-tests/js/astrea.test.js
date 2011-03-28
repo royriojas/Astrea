@@ -84,6 +84,20 @@ describe('Astrea.ns', function () {
     assert(window.abc.cde.fgh.ijk).should(eql,'some value');
     assert(window.abc).should(beSimilarTo, expected);
   });
+  
+  it('should not break on null value passed as namespace', function () {
+    var exceptionHappened = false;
+    try {
+      
+      $a.ns(null);
+    }
+    catch(e) {
+      exceptionHappened = true;
+    }
+    assert(exceptionHappened).should(be, false);
+  });
+  
+  
   it('should not override string, booleans, number or arrays. Functions, arrays and objects are ok', function () {
 
     window.abc = {
@@ -134,8 +148,144 @@ describe('Astrea.ns', function () {
   });
 });
 
+describe('Astrea.throttle', function(){
+  before(function (){
+    Clock && Clock.enableMocks();
+  });
+  after(function (){
+    Clock && Clock.disableMocks();
+  })
+  it('should only call a function after a given number of milliseconds has passed between the last call and the penultimate', function() {
+    var value = 0;
+    var throttledFunc = $a.throttle(function(){
+      value++;
+    }, 500);
+    
+    throttledFunc();
+    
+    Clock.tick(100);
+    assert(value).should(eql,0);
+    
+    throttledFunc();
+    
+    Clock.tick(100);
+    assert(value).should(eql,0);
+    
+    throttledFunc();
+    
+    Clock.tick(100);
+    assert(value).should(eql,0);
+    
+    Clock.tick(500);
+    assert(value).should(eql,1);
+  });
+  it('should allow the function to be executed in the context of an arbirtrary object changing the "this" pointer accordingly', function() {
+    var obj = { value : 0 };
+    obj.functionToCall = function () {
+      this.value++;
+    };
+    var throttledFunc = $a.throttle(function(){
+      this.value++;
+    }, 500, obj);
+    
+    throttledFunc();
+    
+    Clock.tick(100);
+    assert(obj.value).should(eql,0);
+    
+    throttledFunc();
+    
+    Clock.tick(100);
+    assert(obj.value).should(eql,0);
+    
+    throttledFunc();
+    
+    Clock.tick(100);
+    assert(obj.value).should(eql,0);
+    
+    Clock.tick(500);
+    assert(obj.value).should(eql,1);
+    
+    Clock.tick(600);
+    
+    throttledFunc();
+    
+    Clock.tick(600);
+    assert(obj.value).should(eql,2);
+  });
+  
+});
+
+describe('Astrea.debounce', function(){
+  before(function (){
+    Clock && Clock.enableMocks();
+  });
+  after(function (){
+    Clock && Clock.disableMocks();
+  })
+  it('should only call a function once inside a given amount of time', function() {
+    var value = 0;
+    var debounceFunc = $a.debounce(function(){
+      value++;
+    }, 500);
+    
+    debounceFunc();
+    
+    Clock.tick(100);
+    assert(value).should(eql,1);
+    
+    debounceFunc();
+    
+    Clock.tick(100);
+    assert(value).should(eql,1);
+    
+    debounceFunc();
+    
+    Clock.tick(400);
+    assert(value).should(eql,1);
+    
+    debounceFunc();
+    
+    Clock.tick(300);
+    assert(value).should(eql,2);
+  });
+  it('should allow the function to be executed in the context of an arbirtrary object changing the "this" pointer accordingly', function() {
+    var obj = { value : 0 };
+    obj.functionToCall = function () {
+      this.value++;
+    };
+    var debounceFunc = $a.debounce(function(){
+      this.value++;
+    }, 500, obj);
+    
+    debounceFunc();
+    
+    Clock.tick(100);
+    assert(obj.value).should(eql,1);
+    
+    debounceFunc();
+    
+    Clock.tick(100);
+    assert(obj.value).should(eql,1);
+    
+    debounceFunc();
+    
+    Clock.tick(400);
+    assert(obj.value).should(eql,1);
+    
+    debounceFunc();
+    
+    Clock.tick(100);
+    
+    debounceFunc();
+    
+    Clock.tick(100);
+    assert(obj.value).should(eql,2);
+  });
+});
+
 describe('Astrea.Sniff', function () {
-  it('should detect ipad when the platform contains iPad', function () {
+  it('should detect ipad when the platform contains iPad, and do it only once', function () {
     var oldW = Astrea.w;
     Astrea.w = {
       navigator : {
@@ -145,12 +295,11 @@ describe('Astrea.Sniff', function () {
     
     var isiPad = $a.Sniff.isiPad;
     assert(isiPad).should(be, true);
+    Astrea.w.navigator.platform = 'iNew';
+    assert(isiPad).should(be, true);
     $a.w = oldW;
-  })
-});
-
-describe('Astrea.Sniff', function () {
-  it('should detect iphone when the platform contains iPhone', function () {
+  });
+  it('should detect iphone when the platform contains iPhone, and do it only once', function () {
     var oldW = Astrea.w;
     Astrea.w = {
       navigator : {
@@ -158,8 +307,12 @@ describe('Astrea.Sniff', function () {
       }
     };
     
-    var isiPad = $a.Sniff.isiPhone;
-    assert(isiPad).should(be, true);
+    var isiPhone = $a.Sniff.isiPhone;
+    assert(isiPhone).should(be, true);
+    Astrea.w.navigator.platform = 'iNew';
+    assert(isiPhone).should(be, true);
     $a.w = oldW;
-  })
+  });
 });
+
+
