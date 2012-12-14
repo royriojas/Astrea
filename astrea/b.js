@@ -82,6 +82,68 @@
         }, ms || 0);
       }
     },
+    /**
+     * return the value of the given key in a given object
+     */
+    getValue : function (obj, key) {
+      key = $.trim(key);
+      if (!obj || key == '')
+      var subkeys = key.split(".") || [];
+      var tempObj = obj;
+      var theVal = null;
+      for (var i = 0, len = subkeys.length; i < len; i++) {
+        var theKey = subkeys[i];
+        theVal = tempObj[theKey];
+        if (typeof theVal == 'undefined' || theVal == null) break;
+        tempObj = theVal;
+      }
+      return theVal;
+    },
+    /**
+     * iterate over a set of items asynchronously
+     */
+    iterate : function (items, fn, cb) {
+      var len = items.length;
+      var current = 0;
+      //closure fuction to iterate over the items async
+      var process = function(lastValue) {
+        //var currentItem
+        if (current == len) {
+          cb && cb(lastValue);
+          return;
+        }
+        var item = items[current++];
+        setTimeout(function() {
+          fn(item, function(val) {
+            process(val && lastValue);
+          });
+        }, 0);
+      };
+      process(true);
+    },
+    /**
+     * create the methods for dispatch events
+     */
+    createDispatchers : function (eName, obj) {
+      var eventName = 'on' + eName,
+      raiseName = 'raise' + eName,
+      beforeEventName = 'onBefore' + eName,
+      raiseBeforeName = 'raiseBefore' + eName;
+      
+      if (!obj) return; 
+      
+      obj[raiseName] = function () {
+        if ($.isFunction (obj[eventName])) {
+          obj[eventName].apply(obj, arguments);
+        }
+      };
+      
+      obj[raiseBeforeName] = function () {
+        if ($.isFunction (obj[beforeEventName])) {
+          obj[beforeEventName].apply(obj, arguments);
+        }
+      };
+    }
   });
 
 
